@@ -5,15 +5,17 @@ date: "March 9, 2020"
 output: html_document
 ---
 
-```{r}
+```{r, Reading in Packages}
 library(rvest)
 library(tidyverse)
 library(stringr)
 library(lubridate)
 ```
 
-```{r}
-time_fun <- function(x){
+```{r, Time-formatting}
+#Creating a function to take in a time and turn it into a numeric vector with seconds as the units. 
+
+time_fun <- function(x){ 
   times <- x
   times_split <- str_split(x,":")
   
@@ -26,7 +28,9 @@ time_fun <- function(x){
   }
 ```
 
-```{r}
+```{r, Name-formatting}
+#Creating a function to clean the format of some names. 
+
 name_fun <- function(x){
   names <- x
   for (i in 1:length(names)){
@@ -36,8 +40,10 @@ name_fun <- function(x){
 }
 ```
 
+```{r, 50 Free}
 
-```{r}
+#Reading in URL for 50 free. Pulling tables for long course and short course for both men and women. Adjusting some formatting in the table. Adjustments made to date variable and applying the time adjustment function to time variable.  
+
 url_50free <- "https://en.wikipedia.org/wiki/World_record_progression_50_metres_freestyle"
 
 page_50free <- read_html(url_50free)
@@ -69,12 +75,14 @@ women_50free_sc <- html_table(tables_50free[[4]]) %>%
 women_50free_sc$Date<-  as.Date(women_50free_sc$Date, format = "%d %B %Y")
 women_50free_sc$Time <- time_fun(women_50free_sc$Time)
 
-free50 <- bind_rows(men_50free_lc,men_50free_sc, women_50free_lc, women_50free_sc)
+free50 <- bind_rows(men_50free_lc,men_50free_sc, women_50free_lc, women_50free_sc) #Binding data into cumulative dataframe. 
 
 ```
 
+```{r, 100 Free}
 
-```{r}
+#Reading in URL for 100 free. Pulling tables for long course and short course for both men and women. Adjusting some formatting in the table. Adjustments made to date variable and applying the time adjustment function to time variable. 
+
 url_100free <- "https://en.wikipedia.org/wiki/World_record_progression_100_metres_freestyle"
 
 page_100free <- read_html(url_100free)
@@ -110,9 +118,10 @@ women_100free_sc$Time <- time_fun(women_100free_sc$Time)
 free100 <- bind_rows(men_100free_lc,men_100free_sc,women_100free_lc,women_100free_sc)
 ```
 
+```{r, 200 Free}
 
-Add Nationality
-```{r}
+#Reading in URL for 200 free. Pulling tables for long course and short course for both men and women. Adjusting some formatting in the table. Adjustments made to date variable and applying the time adjustment function to time variable. 
+
 url_200free <- "https://en.wikipedia.org/wiki/World_record_progression_200_metres_freestyle"
 
 page_200free <- read_html(url_200free)
@@ -152,7 +161,10 @@ women_200free_sc$Date <- as.Date(women_200free_sc$Date, format = "%B %d, %Y")
 women_200free_sc$Time <- time_fun(women_200free_sc$Time)
 ```
 
-```{r}
+```{r, 200 Free Nationality Adjustments}
+
+#Manually entering nationality given that the entries were represented by a flag in the original dataset. 
+
 men_200free_lc$Nationality <- c("Australia", "Hungary", "Austria", "Australia", "United States", "United States", "United States", "United States", "United States", "United States", "United States", "United States", "France", "Australia", "United States", "Great Britain", "United States", "Australia", "Australia", "Japan", "Australia"," Japan","Japan","Japan","Japan", "United States", "Australia", "United States", "United States", "United States", "Germany", "United States","United States","United States","United States","United States","United States","United States","United States","United States","United States","United States","United States","United States","United States","United States","United States", "Soviet Union", "United States","United States", "West Germany", "West Germany", "West Germany", "West Germany", "Australia", "Italy", "Australia", "Australia", "Australia", "Australia", "Australia", "Netherlands", "Netherlands", "Australia", "Australia", "United States", "United States" , "Germany")
 
 men_200free_sc$Nationality <- c("Germany","Germany", "Italy", "Australia", "Australia", "Australia", "Germany", "Germany")
@@ -165,8 +177,10 @@ free200 <- bind_rows(men_200free_lc,men_200free_sc,women_200free_lc,women_200fre
 ```
 
 
-Add Nationality and Some women short course times have period instead of colon
-```{r}
+```{r, 400 Free}
+
+#Reading in URL for 400 free. Pulling tables for long course and short course for both men and women. Adjusting some formatting in the table. Adjustments made to date variable and applying the time adjustment function to time variable. 
+
 url_400free <- "https://en.wikipedia.org/wiki/World_record_progression_400_metres_freestyle"
 
 page_400free <- read_html(url_400free)
@@ -206,14 +220,17 @@ women_400free_sc$Date <- as.Date(women_400free_sc$Date, format = "%d %b %Y")
 women_400free_sc$Time <- time_fun(women_400free_sc$Time)
 women_400free_sc$Time[11] <- 233.92
 women_400free_sc$Swimmer[11] <- "Ariarne Titmus"
-women_400free_sc$Time[4] <- 239.53
+women_400free_sc$Time[4] <- 239.53 #Fixing some small issues by manually inputting certain values. 
 women_400free_sc$Time[5] <- 236.79
 women_400free_sc$Time[6] <- 234.92
 women_400free_sc$Time[7] <- 233.92
-women_400free_sc <- women_400free_sc %>% slice(-1)
+women_400free_sc <- women_400free_sc %>% slice(-1) # The oldest entry in the table had all major variables missing so this case was removed. 
 ```
 
-```{r}
+```{r, 400 Free Nationality Adjustments}
+
+#Manually entering nationality given that the entries were represented by a flag in the original dataset.
+
 men_400free_lc$Nationality <- c("Great Britain", "Great Britain", "Hungary", "Hungary", "Canada", "Great Britain", "United States", "United States", "Sweden", "United States", "United States", "Sweden", "Sweden", "France", "Japan", "United States", "United States", "France", "Japan", "Japan", "Australia", "Australia", "Australia", "United States", "Australia", "Australia", "Australia", "Australia", "Australia", "Japan", "Australia", "Australia", "United States", "United States", "United States", "United States", "East Germany", "United States", "France", "United States", "United States", "United States", "Canada", "Germany", "United States", "Sweden", "United States", "Australia", "United States", "United States", "United States", "United States","United States","United States","United States","United States","United States", "Soviet Union", "Soviet Union", "Soviet Union", "Canada", "Soviet Union", "Soviet Union", "Soviet Union", "Germany", "Poland", "East Germany", "Australia", "Unattached", "Australia", "Australia", "Australia", "Australia", "Australia","Australia", "Germany")
 
 men_400free_sc$Nationality <- c("Italy", "Sweden", "Australia", "Australia", "Australia", "Australia", "Germany", "France")
@@ -222,11 +239,14 @@ women_400free_lc$Nationality <- c("United States", "Great Britain", "United Stat
 
 women_400free_sc$Nationality <- c("East Germany", "Costa Rica", "United States",  "France", "France", "Great Britain", "France", "Spain", "China", "Australia")
 
-free400 <- bind_rows(men_400free_lc,men_400free_sc,women_400free_lc, women_400free_sc)
+free400 <- bind_rows(men_400free_lc,men_400free_sc,women_400free_lc, women_400free_sc)  #Binding data into cumulative dataframe. 
 ```
 
 
-```{r}
+```{r, 800 Free}
+
+#Reading in URL for 800 free. Pulling tables for long course and short course for both men and women. Adjusting some formatting in the table. Adjustments made to date variable and applying the time adjustment function to time variable. 
+
 url_800free <- "https://en.wikipedia.org/wiki/World_record_progression_800_metres_freestyle"
 
 page_800free <- read_html(url_800free)
@@ -257,12 +277,15 @@ women_800free_sc <- html_table(tables_800free[[4]]) %>%
 women_800free_sc$Date <- as.Date(women_800free_sc$Date, format = "%b %d, %Y")
 women_800free_sc$Time <- time_fun(women_800free_sc$Time)
 
-free800 <- bind_rows(men_800free_lc, men_800free_sc, women_800free_lc, women_800free_sc)
+free800 <- bind_rows(men_800free_lc, men_800free_sc, women_800free_lc, women_800free_sc)  #Binding data into cumulative dataframe. 
 ```
 
 
 
-```{r}
+```{r, 1500 Free}
+
+#Reading in URL for 1500 free. Pulling tables for long course and short course for both men and women. Adjusting some formatting in the table. Adjustments made to date variable and applying the time adjustment function to time variable. 
+
 url_1500free <- "https://en.wikipedia.org/wiki/World_record_progression_1500_metres_freestyle"
 
 page_1500free <- read_html(url_1500free) 
@@ -293,17 +316,19 @@ women_1500free_sc <- html_table(tables_1500free[[4]]) %>%
 women_1500free_sc$Date <- as.Date(women_1500free_sc$Date, format = "%b %d, %Y")
 women_1500free_sc$Time <- time_fun(women_1500free_sc$Time)
 
-free1500 <- bind_rows(men_1500free_lc,men_1500free_sc,women_1500free_lc,women_1500free_sc)
+free1500 <- bind_rows(men_1500free_lc,men_1500free_sc,women_1500free_lc,women_1500free_sc) #Binding data into cumulative data frame. 
 ```
 
 
-```{r}
-free <- bind_rows(free50,free100,free200,free400,free800,free1500)
+```{r, Binding Freestyle}
+
+free <- bind_rows(free50,free100,free200,free400,free800,free1500)  #Binding data into cumulative dataframe. At this stage in the binding there exists a table for all the freestyle events. 
 ```
+ 
+```{r, 100 Back}
 
+#Reading in URL for 100 back. Pulling tables for long course and short course for both men and women. Adjusting some formatting in the table. Adjustments made to date variable and applying the time adjustment function to time variable. 
 
-Add Nationality. Issues with time conversion 
-```{r}
 url_100back <- "https://en.wikipedia.org/wiki/World_record_progression_100_metres_backstroke"
 
 page_100back <- read_html(url_100back)
@@ -321,9 +346,9 @@ men_100back_sc <- html_table(tables_100back[[2]]) %>%
   select(Time, Swimmer = `Swimmer[1]`, Date, Location = Place) %>%
   mutate(Distance = "100", Stroke = "Back", Format = "sc", Sex = "M")
 men_100back_sc$Date <- as.Date(men_100back_sc$Date, format = "%B %d, %Y")
-men_100back_sc$Time[1] <- "52.71"
+men_100back_sc$Time[1] <- "52.71" 
 men_100back_sc$Time[2] <- "52.58"
-men_100back_sc$Time[3] <- "52.52"
+men_100back_sc$Time[3] <- "52.52" #Fixing some small issues by manually inputting certain values. 
 men_100back_sc$Time[17] <- "48.94"
 men_100back_sc$Time[18] <- "48.92"
 men_100back_sc$Time[19] <- "48.90"
@@ -344,7 +369,10 @@ women_100back_sc$Date <- as.Date(women_100back_sc$Date, format = "%B %d, %Y")
 women_100back_sc$Time <- time_fun(women_100back_sc$Time)
 ```
 
-```{r}
+```{r, 100 Back}
+
+#Manually entering nationality given that the entries were represented by a flag in the original dataset. 
+
 men_100back_lc$Nationality <- c("Australia", "Australia", "United States", "United States", "United States", "Germany", "United States", "United States", "United States", "United States", "United States", "East Germany", "East Germany", "East Germany", "East Germany", "East Germany", "East Germany", "East Germany", "United States","United States","United States","United States","United States","Soviet Union", "Soviet Union", "Soviet Union", "United States", "United States", "United States", "United States", "United States", "United States", "United States", "United States", "United States", "United States", "United States", "Spain", "United States", "United States")
 
 men_100back_sc$Nationality <- c("Canada", "Canada", "Canada", "Canada", "United States", "United States", "United States", "Germany", "United States", "United States", "United States", "United States", "Russia", "Spain", "Russia", "Russia", "United States", "United States", "Russia", "China")
@@ -353,12 +381,14 @@ women_100back_lc$Nationality <- c("United States", "South Africa", "Canada", "Ca
 
 women_100back_sc$Nationality <- c("United States", "United States", "Japan", "United States", "United States", "United States", "Japan", "Japan", "Hungary", "Australia") 
 
-back100 <- bind_rows(men_100back_lc,men_100back_sc,women_100back_lc,women_100back_sc)
+back100 <- bind_rows(men_100back_lc,men_100back_sc,women_100back_lc,women_100back_sc) #Binding data into cumulative dataframe. 
 ```
 
 
 
-```{r}
+```{r, 200 Back}
+
+#Reading in URL for 200 back. Pulling tables for long course and short course for both men and women. Adjusting some formatting in the table. Adjustments made to date variable and applying the time adjustment function to time variable. 
 url_200back <- "https://en.wikipedia.org/wiki/World_record_progression_200_metres_backstroke"
 
 page_200back <- read_html(url_200back) 
@@ -391,12 +421,14 @@ women_200back_sc$Date <- as.Date(women_200back_sc$Date, tryFormats = c("%d %b %Y
 women_200back_sc$Time <- time_fun(women_200back_sc$Time)
 
 back200 <- bind_rows(men_200back_lc,men_200back_sc,women_200back_lc,women_200back_sc)
-back <- bind_rows(back100,back200)
+back <- bind_rows(back100,back200)  #Binding data into cumulative data frame. At this stage in the binding of the there exists a dataframe with all of the backstroke events. 
+
 ```
 
 
-Issues with time womens short course
-```{r}
+```{r, 200 Back Nationality Adjustments}
+
+#Reading in URL for 100 breast. Pulling tables for long course and short course for both men and women. Adjusting some formatting in the table. Adjustments made to date variable and applying the time adjustment function to time variable. 
 url_100breast <- "https://en.wikipedia.org/wiki/World_record_progression_100_metres_breaststroke"
 
 page_100breast <- read_html(url_100breast)
@@ -431,11 +463,15 @@ women_100breast_sc$Time[2] <- "1:05.70"
 women_100breast_sc$Time[14] <- "1:02.36"
 women_100breast_sc$Time[15] <- "1:02.36"
 women_100breast_sc$Time <- time_fun(women_100breast_sc$Time)
-breast100 <- bind_rows(men_100breast_lc,men_100breast_sc,women_100breast_lc,women_100breast_sc)
+breast100 <- bind_rows(men_100breast_lc,men_100breast_sc,women_100breast_lc,women_100breast_sc)  #Binding data into cumulative dataframe. 
 ```
 
 
-```{r}
+
+```{r, Time Formatting Function-Breastroke}
+
+#Creating a function to clean the formatting of all the breatstroke events. 
+
 breast_time <- function(x){
   times <- x
   for (i in 1:length(times)){
@@ -445,9 +481,10 @@ breast_time <- function(x){
 }
 ```
 
+```{r, 200 Breast}
 
-Add Nationality. Issues with time in all
-```{r}
+#Reading in URL for 200 breast. Pulling tables for long course and short course for both men and women. Adjusting some formatting in the table. Adjustments made to date variable and applying the time adjustment function to time variable.
+
 url_200breast <- "https://en.wikipedia.org/wiki/World_record_progression_200_metres_breaststroke"
 
 page_200breast <- read_html(url_200breast)
@@ -488,7 +525,10 @@ women_200breast_sc$Time <- time_fun(women_200breast_sc$Time)
 
 ```
 
-```{r}
+```{r, 200 Breast Nationality Adjustments}
+
+#Manually entering nationality given that the entries were represented by a flag in the original dataset. 
+
 men_200breast_lc$Nationality <- c("Great Britain", "Sweden", "Belgium", "Great Britain", "Germany", "United States", "Germany", "Germany", "Japan", "United States", "United States", "France", "Germany",  "France", "United States", "France", "United States", "United States", "United States", "Germany",  "Australia", "United States", "United States", "United States", "United States", "Germany", "Denmark", "Japan", "Japan", "Japan", "Japan", "Japan", "Australia", "United States", "United States", "United States", "Australia", "China", "China", "China", "United States", "United States", "United States", "United States", "Great Britain", "United States", "United States", "Great Britain", "Canada", "Canada", "Canada", "United States", "Great Britain", "United States", "United States", "United States", "United States", "United States", "Japan", "Russia", "Japan", "United States", "United States", "United States", "Japan", "Australia", "Hungary", "Japan", "Japan", "Australia", "Russia")
 men_200breast_sc$Nationality <- c("Great Britain", "Australia", "Russia", "Russia", "United States", "United States", "United States", "United States", "United States", "Australia", "Hungary", "Hungary", "Germany", "Russia")
 
@@ -497,12 +537,14 @@ women_200breast_lc$Nationality <- c("Belgium", "Belgium", "Belgium", "Great Brit
 women_200breast_sc$Nationality <- c("East Germany", "China", "China", "Australia", "Japan", "China", "China", "Australia", "Canada", "Canada", "Australia", "United States", "Russia")
 
 breast200 <- bind_rows(men_200breast_lc,men_200breast_sc,women_200breast_lc,women_200breast_sc)
-breast <- bind_rows(breast100,breast200)
+breast <- bind_rows(breast100,breast200) #Binding data into cumulative dataframe. At this stage in the binding there exists a table for all the breaststroke events. 
 ```
 
 
-Add Nationality Issues with men SC time
-```{r}
+```{r, 100 Fly}
+
+#Reading in URL for 100 fly. Pulling tables for long course and short course for both men and women. Adjusting some formatting in the table. Adjustments made to date variable and applying the time adjustment function to time variable.
+
 url_100fly <- "https://en.wikipedia.org/wiki/World_record_progression_100_metres_butterfly"
 
 page_100fly <- read_html(url_100fly)
@@ -537,7 +579,10 @@ women_100fly_sc$Date <- as.Date(women_100fly_sc$Date, format = "%B %d, %Y")
 women_100fly_sc$Time <- time_fun(women_100fly_sc$Time)
 ```
 
-```{r}
+```{r, 100 Fly Nationality Adjustments}
+
+#Manually entering nationality given that the entries were represented by a flag in the original dataset. 
+
 men_100fly_lc$Nationality <- c("Hungary", "Japan", "Japan", "Japan", "Japan", "Japan", "United States", "United States", "United States", "Argentina", "Argentina", "United States", "United States", "United States", "United States", "United States", "United States", "United States", "United States", "United States", "Sweden", "United States", "United States", "United States", "Germany", "United States", "Russia", "Russia", "Australia", "Australia", "Australia", "Ukraine", "United States", "United States", "United States", "United States", "United States", "Serbia", "United States", "United States")
 
 men_100fly_sc$Nationality <- c("Canada", "Russia", "Russia", "Russia", "Australia", "Australia", "Great Britain", "Australia", "Sweden", "Sweden", "Germany", "Germany", "Serbia and Montenegro", "United States", "United States", "Russia", "Russia", "South Africa", "South Africa")
@@ -546,13 +591,13 @@ women_100fly_lc$Nationality <- c("Netherlands", "United States", "United States"
 
 women_100fly_sc$Nationality <- c("Australia", "China", "United States", "Japan", "United States", "United States", "United States", "United States", "Slovakia", "United States", "Australia", "Australia", "Australia", "Australia", "Australia", "France", "Sweden")
 
-fly100 <- bind_rows(men_100fly_lc,men_100fly_sc, women_100fly_lc, women_100fly_sc)
+fly100 <- bind_rows(men_100fly_lc,men_100fly_sc, women_100fly_lc, women_100fly_sc) #Binding data into cumulative dataframe. 
 ```
 
+```{r, 200 Fly}
 
+#Reading in URL for 200 fly. Pulling tables for long course and short course for both men and women. Adjusting some formatting in the table. Adjustments made to date variable and applying the time adjustment function to time variable.
 
-Add Nationality. women lc issue with time
-```{r}
 url_200fly <- "https://en.wikipedia.org/wiki/World_record_progression_200_metres_butterfly"
 
 page_200fly <- read_html(url_200fly)
@@ -585,7 +630,10 @@ women_200fly_sc$Date <- as.Date(women_200fly_sc$Date, format = "%B %d, %Y")
 women_200fly_sc$Time <- time_fun(women_200fly_sc$Time)
 ```
 
-```{r}
+```{r, 200 Fly Nationality Adjustments}
+
+#Manually entering nationality given that the entries were represented by a flag in the original dataset. 
+
 men_200fly_lc$Nationality <- c("United States", "United States", "United States", "United States", "United States", "United States", "United States", "Australia" , "United States", "United States", "Australia" , "Australia" , "United States", "Australia" , "Australia" , "United States", "United States", "United States", "United States", "United States", "United States", "Germany", "United States", "United States", "United States", "East Germany", "East Germany", "United States", "United States", "United States", "East Germany", "Australia" , "Germany", "Germany", "Germany", "United States", "Russia", "United States", "United States", "United States", "United States", "United States", "United States", "United States", "United States", "United States", "Hungary")
 
 men_200fly_sc$Nationality <- c("France", "Australia" , "Australia" , "Australia" , "France", "Russia", "Great Britain", "France", "Germany", "France", "Russia", "Russia", "Brazil", "South Africa", "South Africa", "Japan")
@@ -595,12 +643,13 @@ women_200fly_lc$Nationality <- c("United States", "Netherlands", "United States"
 women_200fly_sc$Nationality <- c("Australia" , "Australia", "Australia", "China", "Poland", "Japan", "China", "China", "Spain")
 
 fly200 <- bind_rows(men_200fly_lc,men_200fly_sc,women_200fly_lc,women_200fly_sc)
-fly <- bind_rows(fly100,fly200)
+fly <- bind_rows(fly100,fly200) #Binding data into cumulative dataframe. At this stage in the binding there exists a table for all the fly events. 
 ```
 
+```{r, 200 IM}
 
-men issue with time SC and LC
-```{r}
+#Reading in URL for 200 IM. Pulling tables for long course and short course for both men and women. Adjusting some formatting in the table. Adjustments made to date variable and applying the time adjustment function to time variable.
+
 url_200im <- "https://en.wikipedia.org/wiki/World_record_progression_200_metres_individual_medley"
 
 page_200im <- read_html(url_200im)
@@ -633,11 +682,15 @@ women_200im_sc <- html_table(tables_200im[[4]]) %>%
 women_200im_sc$Date <- as.Date(women_200im_sc$Date, format = "%B %d, %Y")
 women_200im_sc$Time <- time_fun(women_200im_sc$Time)
 
-im200 <- bind_rows(men_200im_lc,men_200im_sc, women_200im_lc, women_200im_sc)
+im200 <- bind_rows(men_200im_lc,men_200im_sc, women_200im_lc, women_200im_sc) #Binding data into cumulative dataframe. 
 ```
 
-Add Nationality LC. issue with men lc time
-```{r}
+
+```{r, 400 IM}
+
+#Reading in URL for 400 IM. Pulling tables for long course and short course for both men and women. Adjusting some formatting in the table. Adjustments made to date variable and applying the time adjustment function to time variable.
+
+
 url_400im <- "https://en.wikipedia.org/wiki/World_record_progression_400_metres_individual_medley"
 
 page_400im <- read_html(url_400im)
@@ -664,26 +717,32 @@ women_400im_lc$Time <- time_fun(women_400im_lc$Time)
 
 women_400im_sc <- html_table(tables_400im[[4]]) %>%
   select(Time,Swimmer = Name, Nationality,Date,Location) %>%
-  mutate(Distance = "400", Stroke = "IM", Format = "sc", Sex = "W")
+  mutate(Distance = "400", Stroke = "IM", Format = "lc", Sex = "W")
 women_400im_sc$Date <- as.Date(women_400im_sc$Date, format = "%d %B %Y")
 women_400im_sc$Time <- time_fun(women_400im_sc$Time)
 ```
 
-```{r}
+```{r, 400 IM Nationality Adjustments}
+
+#Manually entering nationality given that the entries were represented by a flag in the original dataset.
+
 men_400im_lc$Nationality <- c("United States", "Soviet Union", "Great Britain", "United States", "United States", "United States", "United States", "United States", "Germany", "United States", "United States", "Germany", "United States", "United States", "Soviet Union", "United States", "United States", "United States", "United States", "United States", "United States", "United States", "United States", "Hungary", "Hungary", "United States", "United States", "United States", "Brazil", "East Germany", "Canada", "Canada", "United States", "Hungary", "Hungary", "Hungary", "United States", "United States", "United States", "United States", "United States", "United States", "United States", "United States", "United States", "United States")
 
 women_400im_lc$Nationality <- c("United States", "United States", "United States", "United States", "United States", "United States", "United States", "United States", "United States", "United States", "United States", "United States", "United States", "United States", "United States", "United States", "Australia", "East Germany", "East Germany", "East Germany", "East Germany", "East Germany", "East Germany", "United States", "East Germany", "East Germany", "East Germany", "East Germany", "China", "Ukraine", "United States", "Australia", "United States", "Australia", "China", "Hungary")
 
 im400 <- bind_rows(men_400im_lc,men_400im_sc, women_400im_lc, women_400im_sc)
-im <- bind_rows(im200,im400)
+im <- bind_rows(im200,im400) #Binding data into cumulative dataframe. At this stage in the binding there exists a table for all the IM events. 
 ```
 
-```{r}
-record_data <- bind_rows(free,back,breast,fly,im)
-record_data$Time[1291] <- 52.07
+```{r, Binding Cumulative Dataframe}
+record_data <- bind_rows(free,back,breast,fly,im) 
+record_data$Time[1291] <- 52.07 #Fixing some small issues by manually inputting certain values. 
 record_data$Time[1292] <- 51.94
 record_data$Time[1163] <- 120.44
 record_data$Time[1250] <- 134.39
+
+#Binding data into cumulative dataframe. At this stage in the binding there exists a table with all the events, thus the table is complte.
+
 ```
 
 ```{r}
