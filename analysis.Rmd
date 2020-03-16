@@ -1,0 +1,160 @@
+---
+title: "techsuit analysis"
+author: "Nick Reeves and Molly Potter"
+date: "March 15, 2020"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(lubridate)
+```
+
+
+```{r}
+data <- read_csv("math285finaldata.csv", locale = locale(encoding = "UTF-8")) %>% select(-X1)
+```
+
+First filter by gender, then by format, then choose from a list of events
+
+```{r}
+data %>% filter(Format == "lc") %>% filter(Sex == "M") %>% ggplot(aes(x= Date, y = Time)) + geom_line(aes(color = Event))
+```
+
+Filter by Gender, then slider for min and max year, then list of events
+
+```{r}
+data %>% 
+  filter(Format == "lc") %>%
+  filter(Sex == "M") %>% 
+  filter(year(Date) > 1990 & year(Date) < 2000) %>% 
+  group_by(Nationality) %>% 
+  summarize(Total_Records_Broken = n()) %>% 
+  top_n(10) %>% 
+  ggplot(aes(x = reorder(Nationality,Total_Records_Broken), y = Total_Records_Broken),color = "black") +
+  geom_bar(stat = "identity") + 
+  theme_minimal()
+```
+
+Similar filter order this time for swimmer
+
+```{r}
+data %>% 
+  filter(Format == "lc") %>% 
+  filter(Sex == "M") %>% filter(year(Date) > 1990 & year(Date) < 2000) %>% group_by(Swimmer) %>% summarize(Total_Records_Broken = n()) %>% top_n(10) %>% ggplot(aes(x = reorder(Swimmer, Total_Records_Broken), y = Total_Records_Broken),color = "black") + geom_bar(stat = "identity") + theme_minimal()
+```
+
+
+Beggining of 2009 analysis
+```{r}
+df_test <- data %>% group_by(year = year(Date)) %>% 
+  summarize(Number_broken = n())
+sample_1 <- df_test %>% filter(year>1970 & year<=2009)
+sample_2 <- df_test %>% filter(year>2009)
+
+```
+
+distributions of records broken each year are not normal. Sample size is small so Go with visual arguments over statistical testing average rate of records broken a year.
+```{r}
+sample_1 %>% ggplot() + geom_histogram(aes(x = Number_broken))
+sample_2 %>% ggplot() + geom_histogram(aes(x = Number_broken))
+```
+
+
+```{r}
+p_both <- df_test %>% mutate(period = ifelse(year<2010, "Before", "After")) %>% ggplot(aes(x=year,y=Number_broken, color = period)) + geom_line()
+```
+
+Now Look at just short course and long course resoectively
+```{r}
+df_test2 <- data %>% filter(year(Date)>1980)
+
+p_lc <- df_test2 %>%filter(Format == "lc") %>% group_by(year = year(Date)) %>% 
+  summarize(Number_broken = n()) %>% mutate(period = ifelse(year<2010, "Before", "After")) %>% ggplot(aes(x=year,y=Number_broken, color = period)) + geom_line()
+```
+
+```{r}
+p_sc <- df_test2 %>%filter(Format == "sc") %>% group_by(year = year(Date)) %>% 
+  summarize(Number_broken = n()) %>% mutate(period = ifelse(year<2010, "Before", "After")) %>% ggplot(aes(x=year,y=Number_broken, color = period)) + geom_line()
+```
+
+```{r}
+df_test2 %>%filter(Format == "lc" & Sex == "M") %>% group_by(year = year(Date)) %>% 
+  summarize(Number_broken = n()) %>% mutate(period = ifelse(year<2010, "Before", "After")) %>% ggplot(aes(x=year,y=Number_broken, color = period)) + geom_line()
+
+df_test2 %>%filter(Format == "lc" & Sex == "M"& year(Date) <2020) %>% group_by(year = year(Date)) %>% 
+  summarize(Number_broken = n()) %>% mutate(period = ifelse(year<2010, "Before", "After")) %>% group_by(period) %>% summarize(mean = mean(Number_broken))
+
+df_test2 %>%filter(Format == "lc" & Sex == "W") %>% group_by(year = year(Date)) %>% 
+  summarize(Number_broken = n()) %>% mutate(period = ifelse(year<2010, "Before", "After")) %>% ggplot(aes(x=year,y=Number_broken, color = period)) + geom_line()
+
+df_test2 %>%filter(Format == "lc" & Sex == "W"& year(Date) <2020) %>% group_by(year = year(Date)) %>% 
+  summarize(Number_broken = n()) %>% mutate(period = ifelse(year<2010, "Before", "After")) %>% group_by(period) %>% summarize(mean = mean(Number_broken))
+```
+
+
+Check just sprint events. No Significant differnece between trend postsuit ban in sprint events and trend in aggregate events. Not going to address it in final analysis.
+```{r}
+df_test2 %>%
+  filter(Format == "lc" & Sex == "M" & as.numeric(Distance) < 200) %>% 
+  group_by(year = year(Date)) %>% 
+  summarize(Number_broken = n()) %>% 
+  mutate(period = ifelse(year<2010, "Before", "After")) %>% 
+  ggplot(aes(x=year,y=Number_broken, color = period)) + geom_line()
+
+df_test2 %>%
+  filter(Format == "lc" & Sex == "M"& as.numeric(Distance) < 200) %>% 
+  group_by(year = year(Date)) %>% 
+  summarize(Number_broken = n()) %>% 
+  mutate(period = ifelse(year<2010, "Before", "After")) %>% 
+  group_by(period) %>% summarize(mean = mean(Number_broken))
+
+df_test2 %>%
+  filter(Format == "lc" & Sex == "W"& as.numeric(Distance) < 200) %>% 
+  group_by(year = year(Date)) %>% 
+  summarize(Number_broken = n()) %>% 
+  mutate(period = ifelse(year<2010, "Before", "After")) %>% 
+  ggplot(aes(x=year,y=Number_broken, color = period)) + geom_line()
+
+df_test2 %>%
+  filter(Format == "lc" & Sex == "W"& as.numeric(Distance) < 200) %>% 
+  group_by(year = year(Date)) %>% 
+  summarize(Number_broken = n()) %>% 
+  mutate(period = ifelse(year<2010, "Before", "After")) %>% 
+  group_by(period) %>% 
+  summarize(mean = mean(Number_broken))
+
+```
+
+```{r}
+df_test2 %>% 
+  filter(Format == "lc" & Sex == "M") %>% 
+  group_by(year = year(Date)) %>% 
+  summarize(n = n()) %>% 
+  filter(year == 2008 | year == 2009)
+
+df_test2 %>%
+  filter(Format == "lc" & Sex == "M" & year(Date)) %>% 
+  group_by(year = year(Date)) %>% 
+  summarize(Number_broken = n()) %>% 
+  mutate(period = ifelse(year<2008, "Before", "After")) %>% 
+  group_by(period) %>% 
+  summarize(mean = mean(Number_broken))
+
+
+df_test2 %>% 
+  filter(Format == "lc" & Sex == "W") %>% 
+  group_by(year = year(Date)) %>% 
+  summarize(n = n()) %>% 
+  filter(year == 2008 | year == 2009)
+
+df_test2 %>%
+  filter(Format == "lc" & Sex == "W") %>% 
+  group_by(year = year(Date)) %>% 
+  summarize(Number_broken = n()) %>% 
+  mutate(period = ifelse(year<2008, "Before", "After")) %>% 
+  group_by(period) %>% 
+  summarize(mean = mean(Number_broken))
+
+```
+

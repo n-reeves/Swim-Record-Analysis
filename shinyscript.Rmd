@@ -1,0 +1,336 @@
+---
+title: "Shinyproject"
+author: "Nick Reeves and Molly Potter"
+date: "March 14, 2020"
+runtime: shiny
+output: html_document
+---
+```{r include=FALSE}
+library(tidyverse)
+library(rsconnect)
+library(shiny)
+library(shinythemes)
+library(DT)
+library(lubridate)
+```
+
+
+```{r include=FALSE}
+data <- read_csv("math285finaldata.csv") %>% select(-X1)
+datasc <- data %>% filter(Format == "sc")
+```
+
+
+
+```{r include=FALSE}
+over_par1 <- "The goal of our project was to develop a dataset and relevant visualizations to help understand the history of record-breaking performances in the history of swimming. The scope of our project focused only on events that are featured at the Olympics, however we decided to include the women's 1500m freestyle and men's 800m freestyle because of the growing sentiment within the international swimming community to add both of these events to any future Olympic competitions. We also decided to include the short course (25m) variants of these races in our data to help add additional level of depth to our data despite the fact that all Olympic competitions are long course (50m)."
+
+over_par2 <- "The primary focus of our visualizations was to help show which nations have the highest number of records that have been broken, which individuals have broken the most records (including their own), and how times have dropped over the years that these events have taken place. We have separated long course and short course visuals because of the fundamental differences in the two formats histories. Long course swimming is extremely well established and has been a major Olympic event since the beginning of the 20th century. Short course swimming has only been recognized by international swimming bodies since the early 1990's and is not competed in on a wide scale globally."
+
+over_par3 <- "Our secondary objective was to conduct an analysis of the rate that records were broken leading up to the notorious 2009 technical swimsuit bans. More information on this topic is provided under the 2009 Suit section of our webpage."
+
+data_par1 <- "Our data was scraped from all 14 of the Wikipedia pages related to the historic progression of world records in Olympic swimming events. Fields include the time of the record breaking swim in seconds, the name of the swimmer, the date the record was broken, the nationality of the swimmer, the location that the record was broken, the distance of the race, the stroke of the event, the format of the race (long course or short course), and the sex of the swimmer."
+
+data_par2 <- "Our dataset is consistent with its original source, however there are some inaccurate records in the original tables that we gathered our data from. In some cases, usually pre 1960's, the dates associated with records are off. This can lead to apparent increases in the world record in our visualizations. For this reason, we discourage users from using this data to get highly accurate metrics on the aggregate number of records broken by individuals or countries during time windows of three years or less prior to 1970."
+
+```
+
+2009 analysis code for plots
+```{r include=FALSE}
+
+par1 <- "In 2000, Speedo released the first iteration of the Fast Skin swimsuit series. These suits were designed to mimic shark skinned and promised speed improvements to every level of swimmer across the world. The commercial success of Speedos first consumer technical swimsuit began a massive multimillion-dollar industry that would end up shaping the direction of the sport for decades."
+
+par2 <- "As swimsuit technology improved, records began to be broken at higher rates than ever experienced before. In 2008 and 2009 respectively, Speedo and Arena released two full body swimsuits that were made of pure polyurethane. The number of records broken jumped by a startling amount, resulting in a ban issued by every major swimming organization that took place the following year."
+
+par3 <- "In this analysis we will be using our data to take a closer look at how the explosion of technical swim suit technology and the lack of regulation in the industry impacted the rate that records were broken in the time leading up to and following the 2009 ban."
+
+par4 <- "The plot above shows the total number of records broken each year over time. The color of the line indicates if the year took place before the 2009 ban or after. As we can observe, the number of records broken each year remains stable until the mid-1950s, which is around the time that many events were created. During this time, backstroke, breaststroke, and the IM were all created which explains the spike in the number of records broken. These rates then die down until we see a large spike in 2000, the beginning of the fast-suit era."
+
+par5 <- "Considering that short course swimming began to have documented records in the 1990s, we wanted to avoid any growth to this area of swimming impacting the trends observed in our analysis. From now on we will be looking at similar plots, but from the beginning of the fast suit era to 2020, and we only be considering long course records. It is worth noting that EDA did show that the rate that records were broken in short course competitions followed similar trends to the rates the trends observed in long course competitions."
+
+par6 <-"Above we have the same plot but split by sex. As we can observe, men were breaking long course records at a higher rate than women for the three decades that led up to the ban. During 2008 and 2009, when swimsuit technology was at its peak, both sexes record breaking rates shot up, with women surpassing men by a notable margin. In 2008 there were 22 record breaking long course swims performed by men and 25 record breaking long course swims performed by women. In 2009 there were 20 record breaking long course swims done by men and 27 record breaking long course swims done by women."
+
+par7 <- "The leap in these statistics was startling. The average number of men's long course records broken a year from 1980 to 2007 was 7.85 and the average number of women's long course records broken a year during the same time period was 4.33. The level of competition observed during these two years was unlike anything ever experienced in swimming history. Looking into the data, it is easier to see how this performance prompted such a massive response despite the growing size of the swimsuit industry."
+
+par8 <- "From the beginning of 2010 to the end of 2019, the average number of men's long course records broken a year is 2.57 and the average number of women's long course records broken a year is 4.88. These numbers show a possible difference in the way that these super-suits have affected the rate that world records have been broken in the last decade. Women have continued to break records at the same rate that they were breaking them during the three decades prior to 2008, however men have been breaking world records at one third of the rate that they were prior to the ban. One possible explanation for this is the amount of generational talent in the men's swimming community during 2008 and 2009, however more analysis is necessary before we make any strong claims."
+
+
+df_test <- data %>% 
+  group_by(year = year(Date)) %>% 
+  summarize(Number_broken = n())
+
+p_both <- df_test %>% 
+  mutate(period = ifelse(year<2010, "Before", "After")) %>% 
+  ggplot(aes(x=year,y=Number_broken, color = period)) + geom_line() + labs(y = "Records Broken")
+
+df_test2 <- data %>% filter(year(Date)>1980)
+
+p_lc <- df_test2 %>% 
+  filter(Format == "lc") %>% 
+  group_by(year = year(Date)) %>% 
+  summarize(Number_broken = n()) %>% 
+  mutate(period = ifelse(year<2010, "Before", "After")) %>% 
+  ggplot(aes(x=year,y=Number_broken, color = period)) + geom_line()
+
+p_sc <- df_test2 %>%
+  filter(Format == "sc") %>% 
+  group_by(year = year(Date)) %>% 
+  summarize(Number_broken = n()) %>% 
+  mutate(period = ifelse(year<2010, "Before", "After")) %>% 
+  ggplot(aes(x=year,y=Number_broken, color = period)) + geom_line()
+
+p_men <- df_test2 %>%
+  filter(Format == "lc" & Sex == "M") %>% 
+  group_by(year = year(Date)) %>% 
+  summarize(Number_broken = n()) %>% 
+  mutate(period = ifelse(year<2010, "Before", "After")) %>% 
+  ggplot(aes(x=year,y=Number_broken, color = period)) + 
+  geom_line() + 
+  labs(y = "Records Broken", title = "Records Broken by Men")
+
+men_mean <- df_test2 %>% 
+  filter(Format == "lc" & Sex == "M") %>% 
+  group_by(year = year(Date)) %>% 
+  summarize(Number_broken = n()) %>% 
+  mutate(period = ifelse(year<2010, "Before", "After")) %>% 
+  group_by(period) %>% 
+  summarize(mean = mean(Number_broken))
+
+p_women <- df_test2 %>%
+  filter(Format == "lc" & Sex == "W") %>% 
+  group_by(year = year(Date)) %>% 
+  summarize(Number_broken = n()) %>% 
+  mutate(period = ifelse(year<2010, "Before", "After")) %>% 
+  ggplot(aes(x=year,y=Number_broken, color = period)) + 
+  geom_line() + 
+  labs(y = "Records Broken", title = "Records Broken by Women")
+
+women_mean <- df_test2 %>% 
+  filter(Format == "lc" & Sex == "W") %>% 
+  group_by(year = year(Date)) %>% 
+  summarize(Number_broken = n()) %>% 
+  mutate(period = ifelse(year<2010, "Before", "After")) %>% 
+  group_by(period) %>% summarize(mean = mean(Number_broken))
+```
+
+
+```{r include=FALSE}
+ui <- fluidPage(
+        navbarPage("Swimming Records", 
+          theme = shinytheme("lumen"),
+          
+          tabPanel("Project Overview",
+                HTML(paste(h4(over_par1), 
+                           h4(over_par2), 
+                           h4(over_par3)))),
+          
+          tabPanel("Data", 
+                   HTML(paste(h4(data_par1),h4(data_par2))),
+                   dataTableOutput("dataview")),
+          
+          navbarMenu("Graphics Long Course",
+                     tabPanel("Top Athletes", 
+                              HTML(paste(h3("Top 10 Athletes by Number of Long Course Records Broken"))),
+                              fluidRow(
+                                column(2,selectInput(inputId ="lcAthleteSex",
+                                  choices = data$Sex, 
+                                  label = "Select Athlete Sex",
+                                  selected = 1)),
+                                column(5,sliderInput(inputId = "lcAthleteSlider",
+                                  label = "Select Date Range",
+                                  min = min(year(data$Date)),
+                                  max = max(year(data$Date)),
+                                  value = c(min(year(data$Date)), max(year(data$Date)))))),
+                                plotOutput(outputId = "lcAthleteBar")),
+                     
+                     tabPanel("Top Nations",
+                              HTML(paste(h3("Top 10 Nations by Number of Long Course Records Broken"))),
+                              fluidRow(
+                                column(2,selectInput(inputId ="lcNationSex",
+                                  choices = data$Sex, 
+                                  label = "Select Athlete Sex",
+                                  selected = 1)),
+                                column(5,sliderInput(inputId = "lcNationSlider",
+                                  label = "Select Date Range",
+                                  min = min(year(data$Date)),
+                                  max = max(year(data$Date)),
+                                  value = c(min(year(data$Date)), max(year(data$Date)))))),
+                                plotOutput(outputId = "lcNationBar")), 
+                     
+                     tabPanel("Time Progression",
+                              HTML(paste(h3("World Record Time Progression (Long Course)"))),
+                              fluidRow(
+                                column(2,selectInput(inputId ="lcEventSex",
+                                  choices = data$Sex, 
+                                  label = "Select Athlete Sex",
+                                  selected = 1)),
+                                column(5, checkboxGroupInput(inputId = "lcEventSelect",
+                                                             label= "Select Events",
+                                                             choices = unique(data$Event),
+                                                             selected = c("50 Free"),
+                                                             inline = TRUE) )),
+                              plotOutput(outputId = "lcTime",
+                                         hover = "plot_hover_lc"),
+                              dataTableOutput("lcTimeData")
+                              )),
+          
+          navbarMenu("Graphics Short Course",
+                     tabPanel("Top Athletes",
+                              HTML(paste(h3("Top 10 Athletes by Number of Short Course Records Broken"))),
+                              fluidRow(
+                                column(2,selectInput(inputId ="scAthleteSex",
+                                  choices = data$Sex, 
+                                  label = "Select Athlete Sex",
+                                  selected = 1)),
+                                column(5,sliderInput(inputId = "scAthleteSlider",
+                                  label = "Select Date Range",
+                                  min = min(year(datasc$Date)),
+                                  max = max(year(datasc$Date)),
+                                  value = c(min(year(datasc$Date)), max(year(datasc$Date)))))),
+                                plotOutput(outputId = "scAthleteBar")), 
+                     
+                     tabPanel("Top Nations",
+                              HTML(paste(h3("Top 10 Nations by Number of Long Course Records Broken"))),
+                        fluidRow(
+                          column(2,selectInput(inputId ="scNationSex",
+                            choices = data$Sex, 
+                            label = "Select Athlete Sex",
+                            selected = 1)),
+                          column(5,sliderInput(inputId = "scNationSlider",
+                            label = "Select Date Range",
+                            min = min(year(data$Date)),
+                            max = max(year(data$Date)),
+                            value = c(min(year(data$Date)), max(year(data$Date)))))),
+                          plotOutput(outputId = "scNationBar")), 
+                     tabPanel("Time Progression",
+                              HTML(paste(h3("World Record Time Progression (Short Course)"))),
+                              fluidRow(
+                                column(2,selectInput(inputId ="scEventSex",
+                                  choices = data$Sex, 
+                                  label = "Select Athlete Sex",
+                                  selected = 1)),
+                                column(5, checkboxGroupInput(inputId = "scEventSelect",
+                                                             label= "Select Events",
+                                                             choices = unique(data$Event),
+                                                             selected = c("50 Free"),
+                                                             inline = TRUE) )),
+                              plotOutput(outputId = "scTime",
+                                         hover = "plot_hover_sc"),
+                              dataTableOutput("scTimeData"))),
+          tabPanel("2009 Suit Ban",
+                   HTML(paste(h4(par1),h4(par2),h4(par3))),
+                   plotOutput("pboth"),
+                   HTML(paste(h4(par4),h4(par5))),
+                   plotOutput("pmen"),
+                   plotOutput("pwomen"),
+                   HTML(paste(h4(par6),h4(par7),h4(par8))))
+        )
+)
+```
+
+```{r include=FALSE}
+server <- function(input,output){
+  output$dataview <- DT::renderDataTable(data)
+  
+  output$lcAthleteBar <- renderPlot(data %>% 
+                                  filter(Format == "lc") %>% 
+                                  filter(Sex == input$lcAthleteSex) %>% 
+                                  filter(year(Date) <= input$lcAthleteSlider[2] & year(Date) >= input$lcAthleteSlider[1]) %>%
+                                  group_by(Swimmer) %>%
+                                  summarize(Records_Broken = n()) %>%
+                                  top_n(10,Records_Broken) %>%
+                                  slice((nrow(.)-9):nrow(.)) %>%
+                                  ggplot() + 
+                                  geom_bar(
+                                    aes(x = reorder(Swimmer, Records_Broken), y = Records_Broken),
+                                    color = "black",
+                                    stat = "identity") + labs(y = "Records Broken", x = "Athlete Name"))
+  
+   output$lcNationBar <- renderPlot(data %>% 
+                                  filter(Format == "lc") %>% 
+                                  filter(Sex == input$lcNationSex) %>% 
+                                  filter(year(Date) <= input$lcNationSlider[2] & year(Date) >= input$lcNationSlider[1]) %>%
+                                  group_by(Nationality) %>%
+                                  summarize(Records_Broken = n()) %>%
+                                  top_n(10,Records_Broken) %>%
+                                  slice((nrow(.)-9):nrow(.)) %>%
+                                  ggplot() + 
+                                  geom_bar(
+                                    aes(x = reorder(Nationality, Records_Broken), y = Records_Broken),
+                                    color = "black",
+                                    stat = "identity")+ labs(y = "Records Broken", x = "Nation")) 
+
+   output$lcTime <- renderPlot(data %>%
+                              filter(Format == "lc") %>%
+                              filter(Sex == input$lcEventSex) %>%
+                              filter(Event %in% input$lcEventSelect) %>%
+                              ggplot(aes(x=Date, y = Time, color = Event)) + 
+                                geom_line() + 
+                                geom_point() + 
+                                labs(y = "Time in Seconds"))
+   
+   
+   output$lcTimeData <- DT::renderDataTable(
+     nearPoints(subset(data, Event %in% input$lcEventSelect & Sex == input$lcEventSex), 
+                input$plot_hover_lc, 
+                xvar ="Date",
+                yvar = "Time"))
+   
+   output$scAthleteBar <- renderPlot(data %>% 
+                                  filter(Format == "sc") %>% 
+                                  filter(Sex == input$scAthleteSex) %>% 
+                                  filter(year(Date) <= input$scAthleteSlider[2] & year(Date) >= input$scAthleteSlider[1]) %>%
+                                  group_by(Swimmer) %>%
+                                  summarize(Records_Broken = n()) %>%
+                                  top_n(10,Records_Broken) %>%
+                                  slice((nrow(.)-9):nrow(.)) %>%
+                                  ggplot() + 
+                                  geom_bar(
+                                    aes(x = reorder(Swimmer, Records_Broken), y = Records_Broken),
+                                    color = "black",
+                                    stat = "identity")+ labs(y = "Records Broken", x = "Athlete Name"))
+   
+   output$scNationBar <- renderPlot(data %>% 
+                                  filter(Format == "sc") %>% 
+                                  filter(Sex == input$scNationSex) %>% 
+                                  filter(year(Date) <= input$scNationSlider[2] & year(Date) >= input$scNationSlider[1]) %>%
+                                  group_by(Nationality) %>%
+                                  summarize(Records_Broken = n()) %>%
+                                  top_n(10,Records_Broken) %>%
+                                  slice((nrow(.)-9):nrow(.)) %>%
+                                  ggplot() + 
+                                  geom_bar(
+                                    aes(x = reorder(Nationality, Records_Broken), y = Records_Broken),
+                                    color = "black",
+                                    stat = "identity") + labs(y = "Nation", x = "Nation"))
+   
+   
+   output$scTime <- renderPlot(data %>%
+                              filter(Format == "sc") %>%
+                              filter(Sex == input$scEventSex) %>%
+                              filter(Event %in% input$scEventSelect) %>%
+                              ggplot(aes(x=Date, y = Time, color = Event)) + 
+                                geom_line() + 
+                                geom_point() + 
+                                labs(y = "Time in Seconds"))
+   
+   
+   output$scTimeData <- DT::renderDataTable(
+     nearPoints(subset(data, Event %in% input$scEventSelect & Sex == input$scEventSex), 
+                input$plot_hover_sc, 
+                xvar ="Date",
+                yvar = "Time"))
+   
+   output$pboth <- renderPlot(p_both)
+   
+   output$pmen <- renderPlot(p_men)
+   
+   output$pwomen <- renderPlot(p_women)
+}
+```
+
+```{r }
+shinyApp(ui = ui, server = server, option = list(height =1000, width = 1000))
+```
+
+
