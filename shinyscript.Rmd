@@ -1,7 +1,4 @@
 ---
-title: "Shinyproject"
-author: "Nick Reeves and Molly Potter"
-date: "March 14, 2020"
 runtime: shiny
 output: html_document
 ---
@@ -16,6 +13,7 @@ library(lubridate)
 
 
 ```{r include=FALSE}
+#load full dataset as well as subset of just sc entries (used in sc shiny plots)
 data <- read_csv("math285finaldata.csv") %>% select(-X1)
 datasc <- data %>% filter(Format == "sc")
 ```
@@ -23,6 +21,8 @@ datasc <- data %>% filter(Format == "sc")
 
 
 ```{r include=FALSE}
+#text and plots used in the project overview and data sections 
+
 over_par1 <- "The goal of our project was to develop a dataset and relevant visualizations to help understand the history of record-breaking performances in the history of swimming. The scope of our project focused only on events that are featured at the Olympics, however we decided to include the women's 1500m freestyle and men's 800m freestyle because of the growing sentiment within the international swimming community to add both of these events to any future Olympic competitions. We also decided to include the short course (25m) variants of these races in our data to help add additional level of depth to our data despite the fact that all Olympic competitions are long course (50m)."
 
 over_par2 <- "The primary focus of our visualizations was to help show which nations have the highest number of records that have been broken, which individuals have broken the most records (including their own), and how times have dropped over the years that these events have taken place. We have separated long course and short course visuals because of the fundamental differences in the two formats histories. Long course swimming is extremely well established and has been a major Olympic event since the beginning of the 20th century. Short course swimming has only been recognized by international swimming bodies since the early 1990's and is not competed in on a wide scale globally."
@@ -35,8 +35,8 @@ data_par2 <- "Our dataset is consistent with its original source, however there 
 
 ```
 
-2009 analysis code for plots
 ```{r include=FALSE}
+#text and plots used in the 2009 suit banning analysis the stats in men_mean and women_mean are refference
 
 par1 <- "In 2000, Speedo released the first iteration of the Fast Skin swimsuit series. These suits were designed to mimic shark skinned and promised speed improvements to every level of swimmer across the world. The commercial success of Speedos first consumer technical swimsuit began a massive multimillion-dollar industry that would end up shaping the direction of the sport for decades."
 
@@ -44,7 +44,7 @@ par2 <- "As swimsuit technology improved, records began to be broken at higher r
 
 par3 <- "In this analysis we will be using our data to take a closer look at how the explosion of technical swim suit technology and the lack of regulation in the industry impacted the rate that records were broken in the time leading up to and following the 2009 ban."
 
-par4 <- "The plot above shows the total number of records broken each year over time. The color of the line indicates if the year took place before the 2009 ban or after. As we can observe, the number of records broken each year remains stable until the mid-1950s, which is around the time that many events were created. During this time, backstroke, breaststroke, and the IM were all created which explains the spike in the number of records broken. These rates then die down until we see a large spike in 2000, the beginning of the fast-suit era."
+par4 <- "The plot above shows the total number of records broken each year over time. The color of the line indicates if the year took place before the 2009 ban or after. As we can observe, the number of records broken each year remains stable until the mid-1950s, which is around the time that many events were created. During this time, backstroke, the 100 breaststroke, butterfly, and the IM were all created which explains the spike in the number of records broken. These rates then die down until we see a large spike in 2000 marking the beginning of the fast-suit era."
 
 par5 <- "Considering that short course swimming began to have documented records in the 1990s, we wanted to avoid any growth to this area of swimming impacting the trends observed in our analysis. From now on we will be looking at similar plots, but from the beginning of the fast suit era to 2020, and we only be considering long course records. It is worth noting that EDA did show that the rate that records were broken in short course competitions followed similar trends to the rates the trends observed in long course competitions."
 
@@ -115,6 +115,12 @@ women_mean <- df_test2 %>%
 
 
 ```{r include=FALSE}
+
+#general structure is navbarpage with different tab panels for each section
+#shiny plot tab panels have a fluid row at the top that contains an inputs
+#graphic sections in nav bar have a navbarmenu object that contains tab panels for each graphic
+#Text in this application is displayed using a the html function and paste to combine parapgraphs
+
 ui <- fluidPage(
         navbarPage("Swimming Records", 
           theme = shinytheme("lumen"),
@@ -229,6 +235,11 @@ ui <- fluidPage(
 ```
 
 ```{r include=FALSE}
+
+#Shiny plots, static plots, and data table rendering
+#all datatables are rendered using the DT library
+#plots all have sc and lc variants. the justification for the seperation is described in the application
+
 server <- function(input,output){
   output$dataview <- DT::renderDataTable(data)
   
@@ -329,8 +340,8 @@ server <- function(input,output){
 }
 ```
 
-```{r }
-shinyApp(ui = ui, server = server, option = list(height =1000, width = 1000))
+```{r echo=FALSE}
+shinyApp(ui = ui, server = server, option = list(height = 700, width = 1000))
 ```
 
 
