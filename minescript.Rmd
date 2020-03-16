@@ -745,6 +745,7 @@ record_data$Time[1250] <- 134.39
 
 ```
 
+
 ```{r}
 record_data$Swimmer <- str_replace_all(record_data$Swimmer, "ó", "o")
 record_data$Location <- str_replace_all(record_data$Location, "ó", "o")
