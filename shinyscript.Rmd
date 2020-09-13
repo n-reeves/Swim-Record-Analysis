@@ -44,7 +44,8 @@ par2 <- "As swimsuit technology improved, records began to be broken at higher r
 
 par3 <- "In this analysis we will be using our data to take a closer look at how the explosion of technical swim suit technology and the lack of regulation in the industry impacted the rate that records were broken in the time leading up to and following the 2009 ban."
 
-par4 <- "The plot above shows the total number of records broken each year over time. The color of the line indicates if the year took place before the 2009 ban or after. As we can observe, the number of records broken each year remains stable until the mid-1950s, which is around the time that many events were created. During this time, backstroke, the 100 breaststroke, butterfly, and the IM were all created which explains the spike in the number of records broken. These rates then die down until we see a large spike in 2000 marking the beginning of the fast-suit era."
+par4 <- "The plot above shows the total numbe
+r of records broken each year over time. The color of the line indicates if the year took place before the 2009 ban or after. As we can observe, the number of records broken each year remains stable until the mid-1950s, which is around the time that many events were created. During this time, backstroke, the 100 breaststroke, butterfly, and the IM were all created which explains the spike in the number of records broken. These rates then die down until we see a large spike in 2000 marking the beginning of the fast-suit era."
 
 par5 <- "Considering that short course swimming began to have documented records in the 1990s, we wanted to avoid any growth to this area of swimming impacting the trends observed in our analysis. From now on we will be looking at similar plots, but from the beginning of the fast suit era to 2020, and we only be considering long course records. It is worth noting that EDA did show that the rate that records were broken in short course competitions followed similar trends to the rates the trends observed in long course competitions."
 
@@ -146,7 +147,7 @@ ui <- fluidPage(
                                   label = "Select Date Range",
                                   min = min(year(data$Date)),
                                   max = max(year(data$Date)),
-                                  value = c(min(year(data$Date)), max(year(data$Date)))))),
+                                  value = c(min(year(data$Date)), max(year(data$Date))), sep =""))),
                                 plotOutput(outputId = "lcAthleteBar")),
                      
                      tabPanel("Top Nations",
@@ -160,6 +161,7 @@ ui <- fluidPage(
                                   label = "Select Date Range",
                                   min = min(year(data$Date)),
                                   max = max(year(data$Date)),
+                                  sep ="",
                                   value = c(min(year(data$Date)), max(year(data$Date)))))),
                                 plotOutput(outputId = "lcNationBar")), 
                      
@@ -192,6 +194,7 @@ ui <- fluidPage(
                                   label = "Select Date Range",
                                   min = min(year(datasc$Date)),
                                   max = max(year(datasc$Date)),
+                                  sep ="",
                                   value = c(min(year(datasc$Date)), max(year(datasc$Date)))))),
                                 plotOutput(outputId = "scAthleteBar")), 
                      
@@ -206,6 +209,7 @@ ui <- fluidPage(
                             label = "Select Date Range",
                             min = min(year(datasc$Date)),
                             max = max(year(datasc$Date)),
+                            sep ="",
                             value = c(min(year(datasc$Date)), max(year(datasc$Date)))))),
                           plotOutput(outputId = "scNationBar")), 
                      tabPanel("Time Progression",
@@ -345,7 +349,7 @@ server <- function(input,output){
 ```
 
 ```{r echo=FALSE}
-shinyApp(ui = ui, server = server, option = list(height = 700, width = 1000))
+shinyApp(ui = ui, server = server, option = list(height = 1000, width = 1000))
 ```
 
 
